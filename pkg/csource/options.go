@@ -175,7 +175,7 @@ func DefaultOpts(cfg *mgrconfig.Config) Options {
 		HandleSegv:    true,
 		Repro:         true,
 	}
-	if cfg.TargetOS != linux {
+	if cfg.TargetOS != linux || cfg.TargetVMOS != linux {
 		opts.NetInjection = false
 		opts.NetDevices = false
 		opts.NetReset = false

@@ -74,6 +74,7 @@ func (env *env) BuildSyzkaller(repo, commit string) error {
 	cmd.Env = append(cmd.Env,
 		"GOPATH="+cfg.Syzkaller[:srcIndex],
 		"TARGETOS="+cfg.TargetOS,
+		"TARGETVMOS="+cfg.TargetVMOS,
 		"TARGETVMARCH="+cfg.TargetVMArch,
 		"TARGETARCH="+cfg.TargetArch,
 		// Since we can be building very old revisions for bisection here,
@@ -98,7 +99,7 @@ func (env *env) BuildKernel(compilerBin, userspaceDir, cmdlineFile, sysctlFile s
 	string, string, error) {
 	imageDir := filepath.Join(env.cfg.Workdir, "image")
 	params := &build.Params{
-		TargetOS:     env.cfg.TargetOS,
+		TargetOS:     env.cfg.TargetVMOS,
 		TargetArch:   env.cfg.TargetVMArch,
 		VMType:       env.cfg.Type,
 		KernelDir:    env.cfg.KernelSrc,

@@ -58,6 +58,7 @@ type Build struct {
 	Manager             string
 	ID                  string
 	OS                  string
+	VMOS                string
 	Arch                string
 	VMArch              string
 	SyzkallerCommit     string

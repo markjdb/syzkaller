@@ -544,6 +544,7 @@ func (mgr *Manager) createDashboardBuild(info *BuildInfo, imageDir, typ string) 
 		Manager:             mgr.name,
 		ID:                  hash.String(tagData),
 		OS:                  mgr.managercfg.TargetOS,
+		VMOS:                mgr.managercfg.TargetVMOS,
 		Arch:                mgr.managercfg.TargetArch,
 		VMArch:              mgr.managercfg.TargetVMArch,
 		SyzkallerCommit:     prog.GitRevisionBase,

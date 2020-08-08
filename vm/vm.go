@@ -74,7 +74,7 @@ func Create(cfg *mgrconfig.Config, debug bool) (*Pool, error) {
 	}
 	env := &vmimpl.Env{
 		Name:    cfg.Name,
-		OS:      cfg.TargetOS,
+		OS:      cfg.TargetVMOS,
 		Arch:    cfg.TargetVMArch,
 		Workdir: cfg.Workdir,
 		Image:   cfg.Image,

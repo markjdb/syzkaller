@@ -105,6 +105,7 @@ func (ctx netbsd) copyKernelToDisk(targetArch, vmType, outputDir, kernel string)
 		SSHKey:       filepath.Join(outputDir, "key"),
 		SSHUser:      "root",
 		TargetOS:     "netbsd",
+		TargetVMOS:   "netbsd",
 		TargetArch:   targetArch,
 		TargetVMArch: targetArch,
 		Type:         "qemu",
