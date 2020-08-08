@@ -110,6 +110,7 @@ type Config struct {
 	// Implementation details beyond this point.
 	// Parsed Target:
 	TargetOS     string `json:"-"`
+	TargetVMOS   string `json:"-"`
 	TargetArch   string `json:"-"`
 	TargetVMArch string `json:"-"`
 	// Syzkaller binaries that we are going to use:

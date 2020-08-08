@@ -68,7 +68,7 @@ func defaultValues() *Config {
 
 func loadPartial(cfg *Config) (*Config, error) {
 	var err error
-	cfg.TargetOS, cfg.TargetVMArch, cfg.TargetArch, err = splitTarget(cfg.Target)
+	cfg.TargetVMOS, cfg.TargetVMArch, cfg.TargetOS, cfg.TargetArch, err = splitTarget(cfg.Target)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +78,7 @@ func loadPartial(cfg *Config) (*Config, error) {
 func Complete(cfg *Config) error {
 	if err := checkNonEmpty(
 		cfg.TargetOS, "target",
+		cfg.TargetVMOS, "target",
 		cfg.TargetVMArch, "target",
 		cfg.TargetArch, "target",
 		cfg.Workdir, "workdir",
@@ -181,12 +182,12 @@ func completeBinaries(cfg *Config) error {
 	}
 	cfg.Syzkaller = osutil.Abs(cfg.Syzkaller)
 	exe := sysTarget.ExeExtension
-	targetBin := func(name, arch string) string {
-		return filepath.Join(cfg.Syzkaller, "bin", cfg.TargetOS+"_"+arch, name+exe)
+	targetBin := func(name, os, arch string) string {
+		return filepath.Join(cfg.Syzkaller, "bin", os+"_"+arch, name+exe)
 	}
-	cfg.SyzFuzzerBin = targetBin("syz-fuzzer", cfg.TargetVMArch)
-	cfg.SyzExecprogBin = targetBin("syz-execprog", cfg.TargetVMArch)
-	cfg.SyzExecutorBin = targetBin("syz-executor", cfg.TargetArch)
+	cfg.SyzFuzzerBin = targetBin("syz-fuzzer", cfg.TargetVMOS, cfg.TargetVMArch)
+	cfg.SyzExecprogBin = targetBin("syz-execprog", cfg.TargetVMOS, cfg.TargetVMArch)
+	cfg.SyzExecutorBin = targetBin("syz-executor", cfg.TargetOS, cfg.TargetArch)
 	if !osutil.IsExist(cfg.SyzFuzzerBin) {
 		return fmt.Errorf("bad config syzkaller param: can't find %v", cfg.SyzFuzzerBin)
 	}
@@ -199,21 +200,32 @@ func completeBinaries(cfg *Config) error {
 	return nil
 }
 
-func splitTarget(target string) (string, string, string, error) {
+func splitTarget(target string) (string, string, string, string, error) {
 	if target == "" {
-		return "", "", "", fmt.Errorf("target is empty")
+		return "", "", "", "", fmt.Errorf("target is empty")
 	}
 	targetParts := strings.Split(target, "/")
-	if len(targetParts) != 2 && len(targetParts) != 3 {
-		return "", "", "", fmt.Errorf("bad config param target")
+	if len(targetParts) < 2 && len(targetParts) > 4 {
+		return "", "", "", "", fmt.Errorf("bad config param target")
 	}
-	os := targetParts[0]
+	os := ""
+	arch := ""
+	vmos := targetParts[0]
 	vmarch := targetParts[1]
-	arch := targetParts[1]
-	if len(targetParts) == 3 {
+	if len(targetParts) == 2 {
+		// linux/amd64
+		os = vmos
+		arch = vmarch
+	} else if len(targetParts) == 3 {
+		// netbsd/amd64/386
+		os = vmos
 		arch = targetParts[2]
+	} else {
+		// freebsd/amd64/linux/386
+		os = targetParts[2]
+		arch = targetParts[3]
 	}
-	return os, vmarch, arch, nil
+	return vmos, vmarch, os, arch, nil
 }
 
 func ParseEnabledSyscalls(target *prog.Target, enabled, disabled []string) ([]int, error) {

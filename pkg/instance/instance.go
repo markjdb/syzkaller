@@ -74,6 +74,7 @@ func (env *env) BuildSyzkaller(repo, commit string) error {
 	cmd.Env = append(cmd.Env,
 		"GOPATH="+cfg.Syzkaller[:srcIndex],
 		"TARGETOS="+cfg.TargetOS,
+		"TARGETVMOS="+cfg.TargetVMOS,
 		"TARGETVMARCH="+cfg.TargetVMArch,
 		"TARGETARCH="+cfg.TargetArch,
 		// Since we can be building very old revisions for bisection here,
@@ -98,7 +99,7 @@ func (env *env) BuildKernel(compilerBin, userspaceDir, cmdlineFile, sysctlFile s
 	string, string, error) {
 	imageDir := filepath.Join(env.cfg.Workdir, "image")
 	params := &build.Params{
-		TargetOS:     env.cfg.TargetOS,
+		TargetOS:     env.cfg.TargetVMOS,
 		TargetArch:   env.cfg.TargetVMArch,
 		VMType:       env.cfg.Type,
 		KernelDir:    env.cfg.KernelSrc,
@@ -426,12 +427,16 @@ func (inst *inst) testProgram(command string, testTime time.Duration) error {
 func FuzzerCmd(fuzzer, executor, name, OS, arch, fwdAddr, sandbox string, procs, verbosity int,
 	cover, debug, test, runtest bool) string {
 	osArg := ""
+	/* XXX
 	if targets.Get(OS, arch).HostFuzzer {
 		// Only these OSes need the flag, because the rest assume host OS.
 		// But speciying OS for all OSes breaks patch testing on syzbot
 		// because old execprog does not have os flag.
 		osArg = " -os=" + OS
 	}
+	*/
+	osArg = " -os=" + OS
+
 	runtestArg := ""
 	if runtest {
 		runtestArg = " -runtest"
@@ -457,9 +462,7 @@ func ExecprogCmd(execprog, executor, OS, arch, sandbox string, repeat, threaded,
 		repeatCount = 0
 	}
 	osArg := ""
-	if targets.Get(OS, arch).HostFuzzer {
-		osArg = " -os=" + OS
-	}
+	osArg = " -os=" + OS
 	return fmt.Sprintf("%v -executor=%v -arch=%v%v -sandbox=%v"+
 		" -procs=%v -repeat=%v -threaded=%v -collide=%v -cover=0"+
 		" -fault_call=%v -fault_nth=%v %v",

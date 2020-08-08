@@ -56,15 +56,15 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
-	target, err := prog.GetTarget(*flagOS, *flagArch)
+	sysTarget, err := prog.GetTarget(*flagOS, *flagArch)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	entries := loadPrograms(target, flag.Args())
+	entries := loadPrograms(sysTarget, flag.Args())
 	if len(entries) == 0 {
 		return
 	}
-	features, err := host.Check(target)
+	features, err := host.Check(sysTarget)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -73,8 +73,8 @@ func main() {
 			log.Logf(0, "%-24v: %v", feat.Name, feat.Reason)
 		}
 	}
-	config, execOpts := createConfig(target, features, featuresFlags)
-	if err = host.Setup(target, features, featuresFlags, config.Executor); err != nil {
+	config, execOpts := createConfig(sysTarget, features, featuresFlags)
+	if err = host.Setup(sysTarget, features, featuresFlags, config.Executor); err != nil {
 		log.Fatal(err)
 	}
 	var gateCallback func()
@@ -317,12 +317,14 @@ func createConfig(target *prog.Target,
 	if featuresFlags["net_dev"].Enabled && features[host.FeatureNetDevices].Enabled {
 		config.Flags |= ipc.FlagEnableNetDev
 	}
-	if featuresFlags["net_reset"].Enabled {
-		config.Flags |= ipc.FlagEnableNetReset
-	}
-	if featuresFlags["cgroups"].Enabled {
-		config.Flags |= ipc.FlagEnableCgroups
-	}
+	/*
+		if featuresFlags["net_reset"].Enabled {
+			config.Flags |= ipc.FlagEnableNetReset
+		}
+		if featuresFlags["cgroups"].Enabled {
+			config.Flags |= ipc.FlagEnableCgroups
+		}
+	*/
 	if featuresFlags["close_fds"].Enabled {
 		config.Flags |= ipc.FlagEnableCloseFds
 	}

@@ -35,6 +35,7 @@ func impl() ([]Var, error) {
 	hostOS := or(os.Getenv("HOSTOS"), runtime.GOOS)
 	hostArch := or(os.Getenv("HOSTARCH"), runtime.GOARCH)
 	targetOS := or(os.Getenv("TARGETOS"), hostOS)
+	targetVMOS := or(os.Getenv("TARGETVMOS"), targetOS)
 	targetArch := or(os.Getenv("TARGETARCH"), hostArch)
 	targetVMArch := or(os.Getenv("TARGETVMARCH"), targetArch)
 	target := targets.Get(targetOS, targetArch)
@@ -61,6 +62,7 @@ func impl() ([]Var, error) {
 		{"HOSTOS", hostOS},
 		{"HOSTARCH", hostArch},
 		{"TARGETOS", targetOS},
+		{"TARGETVMOS", targetVMOS},
 		{"TARGETARCH", targetArch},
 		{"TARGETVMARCH", targetVMArch},
 		{"CC", target.CCompiler},

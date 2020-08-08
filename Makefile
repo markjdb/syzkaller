@@ -26,7 +26,8 @@ define newline
 endef
 ENV := $(subst \n,$(newline),$(shell CI=$(CI)\
 	SOURCEDIR=$(SOURCEDIR) HOSTOS=$(HOSTOS) HOSTARCH=$(HOSTARCH) \
-	TARGETOS=$(TARGETOS) TARGETARCH=$(TARGETARCH) TARGETVMARCH=$(TARGETVMARCH) \
+	TARGETOS=$(TARGETOS) TARGETVMOS=$(TARGETVMOS) \
+	TARGETARCH=$(TARGETARCH) TARGETVMARCH=$(TARGETVMARCH) \
 	SYZ_CLANG=$(SYZ_CLANG) \
 	go run tools/syz-make/make.go))
 # Uncomment in case of emergency.

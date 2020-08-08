@@ -389,8 +389,8 @@ func (ctx *Context) createSyzTest(p *prog.Prog, sandbox string, threaded, cov bo
 	if ctx.Features[host.FeatureNetDevices].Enabled {
 		cfg.Flags |= ipc.FlagEnableNetDev
 	}
-	cfg.Flags |= ipc.FlagEnableNetReset
-	cfg.Flags |= ipc.FlagEnableCgroups
+	//cfg.Flags |= ipc.FlagEnableNetReset
+	//cfg.Flags |= ipc.FlagEnableCgroups
 	if ctx.Features[host.FeatureDevlinkPCI].Enabled {
 		cfg.Flags |= ipc.FlagEnableDevlinkPCI
 	}

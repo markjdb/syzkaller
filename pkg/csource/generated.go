@@ -2481,6 +2481,12 @@ static void netlink_add_veth(struct nlmsg* nlmsg, int sock, const char* name,
 	debug("netlink: adding device %s type veth peer %s: %s\n", name, peer, strerror(err));
 	(void)err;
 }
+#ifndef IFLA_HSR_SLAVE1
+#define IFLA_HSR_SLAVE1 1
+#endif
+#ifndef IFLA_HSR_SLAVE2
+#define IFLA_HSR_SLAVE2 2
+#endif
 
 static void netlink_add_hsr(struct nlmsg* nlmsg, int sock, const char* name,
 			    const char* slave1, const char* slave2)
@@ -2564,6 +2570,12 @@ static void netlink_add_geneve(struct nlmsg* nlmsg, int sock, const char* name, 
 #define IPVLAN_MODE_L3S 2
 #undef IPVLAN_F_VEPA
 #define IPVLAN_F_VEPA 2
+#ifndef IFLA_IPVLAN_MODE
+#define IFLA_IPVLAN_MODE 1
+#endif
+#ifndef IPVLAN_MODE_L2
+#define IPVLAN_MODE_L2 0
+#endif
 
 static void netlink_add_ipvlan(struct nlmsg* nlmsg, int sock, const char* name, const char* link, uint16 mode, uint16 flags)
 {
@@ -7290,7 +7302,7 @@ static void checkpoint_ebtables(void)
 			case ENOPROTOOPT:
 				continue;
 			}
-			fail("ebtable checkpoint %s: getsockopt(EBT_SO_GET_INIT_INFO)", table->name);
+			fail("ebtable checkpoint %s: getsockopt(EBT_SO_GET_INIT_INFO) %d", table->name, flag_net_reset);
 		}
 		debug("ebtable checkpoint %s: entries=%d hooks=%x size=%d\n",
 		      table->name, table->replace.nentries, table->replace.valid_hooks,
@@ -7363,6 +7375,7 @@ static void checkpoint_net_namespace(void)
 	if (!flag_net_reset || flag_sandbox_setuid)
 		return;
 #endif
+	fprintf(stderr, "net reset: %d\n", flag_net_reset);
 	checkpoint_ebtables();
 	checkpoint_arptables();
 	checkpoint_iptables(ipv4_tables, sizeof(ipv4_tables) / sizeof(ipv4_tables[0]), AF_INET, SOL_IP);
@@ -7375,6 +7388,7 @@ static void reset_net_namespace(void)
 	if (!flag_net_reset || flag_sandbox_setuid)
 		return;
 #endif
+	fprintf(stderr, "net reset: %d\n", flag_net_reset);
 	reset_ebtables();
 	reset_arptables();
 	reset_iptables(ipv4_tables, sizeof(ipv4_tables) / sizeof(ipv4_tables[0]), AF_INET, SOL_IP);
@@ -7546,6 +7560,7 @@ static void sandbox_common()
 	setpgrp();
 	setsid();
 
+#if 0
 #if SYZ_EXECUTOR || __NR_syz_init_net_socket || SYZ_DEVLINK_PCI
 	int netns = open("/proc/self/ns/net", O_RDONLY);
 	if (netns == -1)
@@ -7553,6 +7568,7 @@ static void sandbox_common()
 	if (dup2(netns, kInitNetNsFd) < 0)
 		fail("dup2(netns, kInitNetNsFd) failed");
 	close(netns);
+#endif
 #endif
 
 	struct rlimit rlim;
@@ -7661,7 +7677,9 @@ static int do_sandbox_none(void)
 	initialize_vhci();
 #endif
 	sandbox_common();
+#if 0
 	drop_caps();
+#endif
 #if SYZ_EXECUTOR || SYZ_NET_DEVICES
 	initialize_netdevices_init();
 #endif

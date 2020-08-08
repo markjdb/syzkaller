@@ -108,7 +108,7 @@ func Run(cfg *Config) (*Result, error) {
 		return nil, err
 	}
 	cfg.Manager.Cover = false // it's not supported somewhere back in time
-	repo, err := vcs.NewRepo(cfg.Manager.TargetOS, cfg.Manager.Type, cfg.Manager.KernelSrc)
+	repo, err := vcs.NewRepo(cfg.Manager.TargetVMOS, cfg.Manager.Type, cfg.Manager.KernelSrc)
 	if err != nil {
 		return nil, err
 	}
@@ -125,11 +125,11 @@ func Run(cfg *Config) (*Result, error) {
 func runImpl(cfg *Config, repo vcs.Repo, inst instance.Env) (*Result, error) {
 	bisecter, ok := repo.(vcs.Bisecter)
 	if !ok {
-		return nil, fmt.Errorf("bisection is not implemented for %v", cfg.Manager.TargetOS)
+		return nil, fmt.Errorf("bisection is not implemented for %v", cfg.Manager.TargetVMOS)
 	}
 	minimizer, ok := repo.(vcs.ConfigMinimizer)
 	if !ok && len(cfg.Kernel.BaselineConfig) != 0 {
-		return nil, fmt.Errorf("config minimization is not implemented for %v", cfg.Manager.TargetOS)
+		return nil, fmt.Errorf("config minimization is not implemented for %v", cfg.Manager.TargetVMOS)
 	}
 	env := &env{
 		cfg:       cfg,
@@ -191,7 +191,7 @@ func runImpl(cfg *Config, repo vcs.Repo, inst instance.Env) (*Result, error) {
 func (env *env) bisect() (*Result, error) {
 	cfg := env.cfg
 	var err error
-	if err := build.Clean(cfg.Manager.TargetOS, cfg.Manager.TargetVMArch,
+	if err := build.Clean(cfg.Manager.TargetVMOS, cfg.Manager.TargetVMArch,
 		cfg.Manager.Type, cfg.Manager.KernelSrc); err != nil {
 		return nil, fmt.Errorf("kernel clean failed: %v", err)
 	}
@@ -444,7 +444,7 @@ func (env *env) build() (*vcs.Commit, string, error) {
 	env.log("testing commit %v with %v", current.Hash, compilerID)
 	buildStart := time.Now()
 	mgr := &env.cfg.Manager
-	if err := build.Clean(mgr.TargetOS, mgr.TargetVMArch, mgr.Type, mgr.KernelSrc); err != nil {
+	if err := build.Clean(mgr.TargetVMOS, mgr.TargetVMArch, mgr.Type, mgr.KernelSrc); err != nil {
 		return nil, "", fmt.Errorf("kernel clean failed: %v", err)
 	}
 	kern := &env.cfg.Kernel

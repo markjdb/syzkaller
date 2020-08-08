@@ -175,7 +175,7 @@ func DefaultOpts(cfg *mgrconfig.Config) Options {
 		HandleSegv:    true,
 		Repro:         true,
 	}
-	if cfg.TargetOS != linux {
+	if cfg.TargetOS != linux || cfg.TargetVMOS != linux {
 		opts.NetInjection = false
 		opts.NetDevices = false
 		opts.NetReset = false
@@ -261,7 +261,7 @@ func defaultFeatures(value bool) Features {
 		"net_dev":     {"setup more network devices for testing", value},
 		"net_reset":   {"reset network namespace between programs", value},
 		"cgroups":     {"setup cgroups for testing", value},
-		"binfmt_misc": {"setup binfmt_misc for testing", value},
+		"binfmt_misc": {"setup binfmt_misc for testing", false},
 		"close_fds":   {"close fds after each program", value},
 		"devlink_pci": {"setup devlink PCI device", value},
 		"usb":         {"setup and use /dev/raw-gadget for USB emulation", value},

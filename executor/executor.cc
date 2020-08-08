@@ -492,6 +492,7 @@ void parse_env_flags(uint64 flags)
 	flag_close_fds = flags & (1 << 10);
 	flag_devlink_pci = flags & (1 << 11);
 	flag_vhci_injection = flags & (1 << 12);
+	printf("flags %llx\n", flags);
 }
 
 #if SYZ_EXECUTOR_USES_FORK_SERVER

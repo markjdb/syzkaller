@@ -76,6 +76,7 @@ func NewSyzUpdater(cfg *Config) *SyzUpdater {
 	targets := make(map[string]bool)
 	for _, mgr := range cfg.Managers {
 		mgrcfg := mgr.managercfg
+		// XXXMJ
 		os, vmarch, arch := mgrcfg.TargetOS, mgrcfg.TargetVMArch, mgrcfg.TargetArch
 		targets[os+"/"+vmarch+"/"+arch] = true
 		files[fmt.Sprintf("bin/%v_%v/syz-fuzzer", os, vmarch)] = true
@@ -255,6 +256,7 @@ func (upd *SyzUpdater) build(commit *vcs.Commit) error {
 		cmd = osutil.Command(instance.MakeBin, "target")
 		cmd.Dir = upd.syzkallerDir
 		cmd.Env = append([]string{}, os.Environ()...)
+		// XXXMJ
 		cmd.Env = append(cmd.Env,
 			"GOPATH="+upd.gopathDir,
 			"TARGETOS="+parts[0],
@@ -306,6 +308,7 @@ func (upd *SyzUpdater) uploadBuildError(commit *vcs.Commit, buildErr error) {
 				Manager:             managercfg.Name,
 				ID:                  commit.Hash,
 				OS:                  managercfg.TargetOS,
+				VMOS:                managercfg.TargetVMOS,
 				Arch:                managercfg.TargetArch,
 				VMArch:              managercfg.TargetVMArch,
 				SyzkallerCommit:     commit.Hash,
