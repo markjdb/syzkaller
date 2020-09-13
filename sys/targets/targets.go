@@ -495,7 +495,6 @@ func init() {
 	if goos == "freebsd" {
 		for _, target := range List["linux"] {
 			target.CCompiler = "/compat/linux/bin/gcc"
-			target.CFlags = append(target.CFlags, "-std=c++03")
 		}
 	}
 }

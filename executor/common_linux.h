@@ -3907,7 +3907,8 @@ retry:
 		}
 	}
 	closedir(dp);
-	for (int i = 0;; i++) {
+	int i;
+	for (i = 0;; i++) {
 		if (rmdir(dir) == 0)
 			break;
 		if (i < 100) {
@@ -4004,10 +4005,12 @@ static int fault_injected(int fail_fd)
 
 static void kill_and_wait(int pid, int* status)
 {
+	int i;
+
 	kill(-pid, SIGKILL);
 	kill(pid, SIGKILL);
 	// First, give it up to 100 ms to surrender.
-	for (int i = 0; i < 100; i++) {
+	for (i = 0; i < 100; i++) {
 		if (waitpid(-1, status, WNOHANG | __WALL) == pid)
 			return;
 		usleep(1000);
@@ -4120,7 +4123,8 @@ static void close_fds()
 	// so close all opened file descriptors.
 	// Also close all USB emulation descriptors to trigger exit from USB
 	// event loop to collect coverage.
-	for (int fd = 3; fd < MAX_FDS; fd++)
+	int fd;
+	for (fd = 3; fd < MAX_FDS; fd++)
 		close(fd);
 }
 #endif
@@ -4289,7 +4293,8 @@ static void setup_kcsan_filterlist(char** frames, int nframes, bool suppress)
 	       suppress ? "suppressing" : "only showing");
 	if (!suppress)
 		dprintf(fd, "whitelist\n");
-	for (int i = 0; i < nframes; ++i) {
+	int i;
+	for (i = 0; i < nframes; ++i) {
 		printf("'%s' ", frames[i]);
 		dprintf(fd, "!%s\n", frames[i]);
 	}
