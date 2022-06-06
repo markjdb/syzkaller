@@ -66,7 +66,7 @@ type LegacyOptions struct {
 // Invalid combinations must not be passed to Write.
 func (opts Options) Check(OS string) error {
 	switch opts.Sandbox {
-	case "", sandboxNone, sandboxNamespace, sandboxSetuid, sandboxAndroid:
+	case "", sandboxNone, sandboxNamespace, sandboxSetuid, sandboxAndroid, sandboxJail:
 	default:
 		return fmt.Errorf("unknown sandbox %v", opts.Sandbox)
 	}
@@ -111,6 +111,9 @@ func (opts Options) Check(OS string) error {
 		// This tries to create syz-tmp dir in cwd,
 		// which will fail if procs>1 and on second run of the program.
 		return errors.New("option Sandbox=namespace without UseTmpDir")
+	}
+	if opts.Sandbox == sandboxJail && OS != targets.FreeBSD {
+		return errors.New("option Sandbox=jail is only supported on FreeBSD")
 	}
 	if opts.NetReset && (opts.Sandbox == "" || opts.Sandbox == sandboxSetuid) {
 		return errors.New("option NetReset without sandbox")

@@ -139,9 +139,9 @@ func Complete(cfg *Config) error {
 		return fmt.Errorf("bad config param procs: '%v', want [1, %v]", cfg.Procs, prog.MaxPids)
 	}
 	switch cfg.Sandbox {
-	case "none", "setuid", "namespace", "android":
+	case "none", "setuid", "namespace", "android", "jail":
 	default:
-		return fmt.Errorf("config param sandbox must contain one of none/setuid/namespace/android")
+		return fmt.Errorf("config param sandbox must contain one of none/setuid/namespace/android/jail")
 	}
 	if err := cfg.checkSSHParams(); err != nil {
 		return err

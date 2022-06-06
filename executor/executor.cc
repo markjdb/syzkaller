@@ -166,6 +166,7 @@ static bool flag_sandbox_none;
 static bool flag_sandbox_setuid;
 static bool flag_sandbox_namespace;
 static bool flag_sandbox_android;
+static bool flag_sandbox_jail;
 static bool flag_extra_coverage;
 static bool flag_net_injection;
 static bool flag_net_devices;
@@ -534,6 +535,10 @@ int main(int argc, char** argv)
 	else if (flag_sandbox_android)
 		status = do_sandbox_android(sandbox_arg);
 #endif
+#if SYZ_HAVE_SANDBOX_JAIL
+	else if (flag_sandbox_jail)
+		status = do_sandbox_jail();
+#endif
 	else
 		fail("unknown sandbox type");
 
@@ -609,6 +614,8 @@ void parse_env_flags(uint64 flags)
 		flag_sandbox_namespace = true;
 	else if (flags & (1 << 4))
 		flag_sandbox_android = true;
+	else if (flags & (1 << 15))
+		flag_sandbox_jail = true;
 	else
 		flag_sandbox_none = true;
 	flag_extra_coverage = flags & (1 << 5);

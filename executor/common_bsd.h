@@ -229,7 +229,7 @@ static void initialize_tun(int tun_id)
 	tunfd = open(tun_device, O_RDWR | O_NONBLOCK);
 #if GOOS_freebsd
 	if ((tunfd < 0) && (errno == ENOENT)) {
-		execute_command(0, "kldload -q if_tap");
+		execute_command(0, "kldload -qn if_tap");
 		tunfd = open(tun_device, O_RDWR | O_NONBLOCK);
 	}
 #endif
@@ -498,3 +498,45 @@ static int do_sandbox_setuid(void)
 	doexit(1);
 }
 #endif // SYZ_EXECUTOR || SYZ_SANDBOX_SETUID
+
+#if SYZ_EXECUTOR || SYZ_SANDBOX_JAIL
+
+#include <sys/param.h>
+#include <sys/jail.h>
+#include <sys/uio.h>
+
+static void loop();
+
+#define SYZ_HAVE_SANDBOX_JAIL 1
+static int do_sandbox_jail(void)
+{
+	struct iovec iov[4];
+	char errmsg[256];
+	int error, newvnet;
+
+	newvnet = JAIL_SYS_NEW;
+
+	iov[0].iov_base = __DECONST(char *, "vnet");
+	iov[0].iov_len = sizeof("vnet");
+	iov[1].iov_base = &newvnet;
+	iov[1].iov_len = sizeof(newvnet);
+	iov[2].iov_base = __DECONST(char *, "errmsg");
+	iov[2].iov_len = sizeof("errmsg");
+	iov[3].iov_base = errmsg;
+	iov[3].iov_len = sizeof(errmsg);
+
+	memset(errmsg, 0, sizeof(errmsg));
+	error = jail_set(iov, nitems(iov), JAIL_CREATE | JAIL_ATTACH);
+	if (error == -1)
+		failmsg("jail_set failed", errmsg[0] != '\0' ? "%s" : NULL, errmsg);
+
+	sandbox_common();
+#if SYZ_EXECUTOR || SYZ_NET_INJECTION
+	initialize_tun(procid);
+#endif
+
+	loop();
+	return 0;
+}
+
+#endif // SYZ_EXECUTOR || SYZ_SANDBOX_JAIL

@@ -43,6 +43,7 @@ const (
 	FlagEnableVhciInjection                      // setup and use /dev/vhci for hci packet injection
 	FlagEnableWifi                               // setup and use mac80211_hwsim for wifi emulation
 	FlagDelayKcovMmap                            // manage kcov memory in an optimized way
+	FlagSandboxJail                              // use FreeBSD jails for sandboxing
 )
 
 // Per-exec flags for ExecOpts.Flags.
@@ -138,8 +139,10 @@ func SandboxToFlags(sandbox string) (EnvFlags, error) {
 		return FlagSandboxNamespace, nil
 	case "android":
 		return FlagSandboxAndroid, nil
+	case "jail":
+		return FlagSandboxJail, nil
 	default:
-		return 0, fmt.Errorf("sandbox must contain one of none/setuid/namespace/android")
+		return 0, fmt.Errorf("sandbox must contain one of none/setuid/namespace/android/jail")
 	}
 }
 
@@ -150,6 +153,8 @@ func FlagsToSandbox(flags EnvFlags) string {
 		return "namespace"
 	} else if flags&FlagSandboxAndroid != 0 {
 		return "android"
+	} else if flags&FlagSandboxJail != 0 {
+		return "jail"
 	}
 	return "none"
 }

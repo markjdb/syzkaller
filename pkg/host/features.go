@@ -23,6 +23,7 @@ const (
 	FeatureSandboxSetuid
 	FeatureSandboxNamespace
 	FeatureSandboxAndroid
+	FeatureSandboxJail
 	FeatureFault
 	FeatureLeak
 	FeatureNetInjection
@@ -65,6 +66,7 @@ func Check(target *prog.Target) (*Features, error) {
 		FeatureSandboxSetuid:    {Name: "setuid sandbox", Reason: unsupported},
 		FeatureSandboxNamespace: {Name: "namespace sandbox", Reason: unsupported},
 		FeatureSandboxAndroid:   {Name: "Android sandbox", Reason: unsupported},
+		FeatureSandboxJail:      {Name: "FreeBSD jail sandbox", Reason: unsupported},
 		FeatureFault:            {Name: "fault injection", Reason: unsupported},
 		FeatureLeak:             {Name: "leak checking", Reason: unsupported},
 		FeatureNetInjection:     {Name: "net packet injection", Reason: unsupported},
